@@ -13,11 +13,9 @@ export default function getFullResponseFromAPI(success) {
 // Example usage:
 getFullResponseFromAPI(true)
   .then(response => {
-    console.log('Response:', response);
-  })
-  .catch(error => {
-    console.error('Error:', error.message);
-  });
+    console.log('Response:', response))
+  .catch(error => 
+    console.error('Error:', error.message));
 
 getFullResponseFromAPI(false)
   .then(response => {
