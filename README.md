@@ -36,3 +36,12 @@
     Why and how to add a static method to a class
     How to extend a class from another
     Metaprogramming and symbols
+
+## 0x03. ES6 data manipulation
+
+### Learning Objectives
+
+    How to use map, filter and reduce on arrays
+    Typed arrays
+    The Set, Map, and Weak link data structures
+
