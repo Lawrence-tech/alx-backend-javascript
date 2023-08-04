@@ -71,3 +71,17 @@ class StudentClass implements StudentInterface {
     }
 }
 
+// Define an interface for the constructor of StudentClass
+interface StudentClassConstructor {
+    new (firstName: string, lastName: string): StudentClass;
+}
+
+// Define an interface for the class StudentClass
+interface StudentClassInterface extends StudentInterface, StudentClassConstructor {}
+
+// Create an instance of StudentClass
+const student: StudentClassInterface = new StudentClass('John', 'Doe');
+
+// Call the methods of the StudentClass
+console.log(student.workOnHomework());
+console.log(student.displayName());
