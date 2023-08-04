@@ -1,31 +1,32 @@
-// Define an interface for teachers
+// Define an interface for a Teacher
 interface Teacher {
-    readonly firstName: string; // The first name of the teacher
-    readonly lastName: string; // The last name of the teacher
-    fullTimeEmployee: boolean; // Indicates if the teacher is a full-time employee
-    yearsOfExperience?: number; // Number of years of teaching experience (optional)
-    readonly location: string; // The location of the teacher
-    [propName: string]: any; // Allows additional dynamic properties for the teacher
+    readonly firstName: string;
+    readonly lastName: string;
+    fullTimeEmployee: boolean;
+    yearsOfExperience?: number;
+    readonly location: string;
+    [propName: string]: any;
 }
 
-// Define an interface for directors, extending the Teacher interface
-interface Directors extends Teacher {
-    numberOfReports: number; // The number of reports the director is responsible for
+// Define an interface for a Director that extends the Teacher interface
+interface Director extends Teacher {
+    numberOfReports: number;
 }
 
-// Create a teacher object
-const teacher1: Teacher = {
+// Create an object of type Teacher
+const teacher3: Teacher = {
     firstName: 'John',
     fullTimeEmployee: false,
     lastName: 'Doe',
     location: 'London',
-    contract: false, // Additional property "contract" is allowed
+    contract: false,
 };
 
-console.log(teacher1);
+// Display the teacher3 object
+console.log(teacher3);
 
-// Create a director object
-const director1: Directors = {
+// Create an object of type Director
+const director1: Director = {
     firstName: 'John',
     lastName: 'Doe',
     location: 'London',
@@ -33,14 +34,15 @@ const director1: Directors = {
     numberOfReports: 17,
 };
 
+// Display the director1 object
 console.log(director1);
 
-// Define an interface for a function that prints a teacher's name
-interface PrintTeacherFunction {
+// Define an interface for a function named printTeacherFunction
+interface printTeacherFunction {
     (firstName: string, lastName: string): string;
 }
 
-// Function to print a teacher's name
+// Implement a function named printTeacher that accepts firstName and lastName as arguments and returns a formatted string
 function printTeacher(firstName: string, lastName: string): string {
     const firstInitial = firstName.charAt(0).toUpperCase();
     const formattedLastName = lastName.charAt(0).toUpperCase() + lastName.slice(1);
@@ -48,15 +50,15 @@ function printTeacher(firstName: string, lastName: string): string {
     return `${firstInitial}. ${formattedLastName}`;
 }
 
-// Define an interface for a student
+// Define an interface for a Student with required methods
 interface StudentInterface {
-    firstName: string; // The first name of the student
-    lastName: string; // The last name of the student
-    workOnHomework(): string; // Method to indicate the student is working on homework
-    displayName(): string; // Method to display the student's first name
+    firstName: string;
+    lastName: string;
+    workOnHomework(): string;
+    displayName(): string;
 }
 
-// Implement the StudentInterface in a Student class
+// Implement a class named StudentClass that implements the StudentInterface
 class StudentClass implements StudentInterface {
     constructor(public firstName: string, public lastName: string) {}
 
