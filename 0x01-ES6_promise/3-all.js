@@ -1,12 +1,17 @@
-import { uploadPhoto, createUser } from "./utils.js";
+import { createUser, uploadPhoto } from './utils';
 
-export default function handleProfileSignup() {
-  Promise.all([uploadPhoto(), createUser()])
-    .then((results) => {
-      const [photo, user] = results;
-      console.log(`${photo.body} ${user.firstName} ${user.lastName}`);
+// Handles the signup process for user profile by combining photo upload and user creation.
+function handleProfileSignup() {
+  return Promise.all([uploadPhoto(), createUser()])
+    .then((values) => {
+      const { body: photoResult } = values[0];
+      const { firstName, lastName } = values[1];
+
+      console.log(`Photo upload: ${photoResult}, User: ${firstName} ${lastName}`);
     })
-    .catch((error) => {
-      console.log('Signup system offline');
+    .catch(() => {
+      console.log('System temporarily unavailable for signup.');
     });
 }
+
+export default handleProfileSignup;
