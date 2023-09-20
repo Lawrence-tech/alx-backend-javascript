@@ -1,37 +1,31 @@
 const fs = require('fs');
 
-function countStudents(path) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(path, 'utf8', (error, data) => {
-      if (error) {
-        reject(new Error('Cannot load the database'));
-      } else {
-        const lines = data.split('\n').filter(Boolean); // Remove empty lines
-        const fields = {};
-
-        for (const line of lines) {
-          const student = line.split(',');
-          const field = student[3].trim(); // Assuming field is in the 4th column (index 3)
-
-          if (field) {
-            if (fields[field]) {
-              fields[field].push(student[0].trim()); // Assuming student's name is in the 1st column (index 0)
-            } else {
-              fields[field] = [student[0].trim()];
-            }
-          }
+async function countStudents(path) {
+  if (fs.existsSync(path)) {
+    return new Promise((resolve) => {
+      fs.readFile(path, 'utf8', (err, data) => {
+        if (err) {
+          throw Error('Cannot load the database');
         }
-
-        console.log(`Number of students: ${lines.length}`);
-        for (const field in fields) {
-          const studentsList = fields[field].join(', ');
-          console.log(`Number of students in ${field}: ${fields[field].length}. List: ${studentsList}`);
-        }
-
-        resolve();
-      }
+        const result = [];
+        data.split('\n').forEach((data) => {
+          result.push(data.split(','));
+        });
+        result.shift();
+        const newis = [];
+        result.forEach((data) => newis.push([data[0], data[3]]));
+        const fields = new Set();
+        newis.forEach((item) => fields.add(item[1]));
+        const final = {};
+        fields.forEach((data) => { (final[data] = 0); });
+        newis.forEach((data) => { (final[data[1]] += 1); });
+        console.log(`Number of students: ${result.filter((check) => check.length > 3).length}`);
+        Object.keys(final).forEach((data) => console.log(`Number of students in ${data}: ${final[data]}. List: ${newis.filter((n) => n[1] === data).map((n) => n[0]).join(', ')}`));
+        resolve(result, final, newis);
+      });
     });
-  });
+  }
+  throw Error('Cannot load the database');
 }
 
 module.exports = countStudents;
