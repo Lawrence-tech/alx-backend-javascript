@@ -1,71 +1,57 @@
 const http = require('http');
 const fs = require('fs');
-const path = require('path');
+const { argv } = require('process');
+
+function countStudents(path, stream) {
+  if (fs.existsSync(path)) {
+    const data = fs.readFileSync(path, 'utf8');
+    const result = [];
+    data.split('\n').forEach((data) => {
+      result.push(data.split(','));
+    });
+    result.shift();
+    const newis = [];
+    result.forEach((data) => newis.push([data[0], data[3]]));
+    const fields = new Set();
+    newis.forEach((item) => fields.add(item[1]));
+    const final = {};
+    fields.forEach((data) => { (final[data] = 0); });
+    newis.forEach((data) => { (final[data[1]] += 1); });
+    stream.write(`Number of students: ${result.length}\n`);
+    const temp = [];
+    Object.keys(final).forEach((data) => temp.push(`Number of students in ${data}: ${final[data]}. List: ${newis.filter((n) => n[1] === data).map((n) => n[0]).join(', ')}\n`));
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < temp.length; i++) {
+      if (i === temp.length - 1) {
+        temp[i] = temp[i].replace(/(\r\n|\n|\r)/gm, '');
+      }
+      stream.write(temp[i]);
+    }
+  } else { throw new Error('Cannot load the database'); }
+}
+
+const hostname = 'localhost';
+const port = 1245;
 
 const app = http.createServer((req, res) => {
-  if (req.method === 'GET') {
-    if (req.url === '/') {
-      // Serve "Hello Holberton School!" for the root path
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('Hello Holberton School!\n');
-    } else if (req.url === '/students') {
-      // Serve student data for the /students path
-      const databasePath = process.argv[2];
-      if (!databasePath) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('Internal Server Error: Database path not provided.\n');
-        return;
-      }
-
-      // Read and serve the content of 3-read_file_async.js
-      fs.readFile(databasePath, 'utf8', (error, data) => {
-        if (error) {
-          res.writeHead(500, { 'Content-Type': 'text/plain' });
-          res.end('Internal Server Error: Cannot read the database.\n');
-          return;
-        }
-
-        // Process the data and serve it as plain text
-        const lines = data.split('\n').filter(Boolean);
-        const fields = {};
-
-        for (const line of lines) {
-          const student = line.split(',');
-          const field = student[3].trim();
-
-          if (field) {
-            if (fields[field]) {
-              fields[field].push(student[0].trim());
-            } else {
-              fields[field] = [student[0].trim()];
-            }
-          }
-        }
-
-        // Prepare the response with student data
-        let responseText = 'This is the list of our students\n';
-        responseText += `Number of students: ${lines.length}\n`;
-
-        for (const field in fields) {
-          const studentsList = fields[field].join(', ');
-          responseText += `Number of students in ${field}: ${fields[field].length}. List: ${studentsList}\n`;
-        }
-
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end(responseText);
-      });
-    } else {
-      // Handle other paths with a 404 response
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('Not Found\n');
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  const { url } = req;
+  if (url === '/') {
+    res.write('Hello Holberton School!');
+    res.end();
+  }
+  if (url === '/students') {
+    res.write('This is the list of our students\n');
+    try {
+      countStudents(argv[2], res);
+      res.end();
+    } catch (err) {
+      res.end(err.message);
     }
-  } else {
-    // Handle non-GET requests with a 405 response
-    res.writeHead(405, { 'Content-Type': 'text/plain' });
-    res.end('Method Not Allowed\n');
   }
 });
 
-app.listen(1245);
+app.listen(port, hostname);
 
 module.exports = app;
