@@ -1,39 +1,49 @@
 const express = require('express');
+const fs = require('fs').promises; // Use promises-based fs
 const { argv } = require('process');
-const fs = require('fs');
 
 const app = express();
+const PORT = 1245;
+const DB_FILE = argv[2] || ''; // Set the default value
 
-app.get('/', (req, res) => {
-  res.set('Content-Type', 'text/plain');
+const countStudents = async (dataPath) => {
+  try {
+    const data = await fs.readFile(dataPath, 'utf-8');
+    const lines = data.trim().split('\n');
+    const headers = lines[0].split(',');
+    const students = lines.slice(1).map((line) => {
+      const values = line.split(',');
+      return Object.fromEntries(headers.map((header, index) => [header, values[index]]));
+    });
+    const fields = new Set(students.map((student) => student.Field));
+    const report = [`Number of students: ${students.length}`];
+    for (const field of fields) {
+      const studentsInField = students.filter((student) => student.Field === field);
+      report.push(`Number of students in ${field}: ${studentsInField.length}. List: ${studentsInField.map((student) => student.firstname).join(', ')}`);
+    }
+    return report.join('\n');
+  } catch (error) {
+    throw new Error('Cannot load the database');
+  }
+};
+
+app.get('/', (_, res) => {
   res.send('Hello Holberton School!');
 });
 
-app.get('/students', (req, res) => {
-  res.set('Content-Type', 'text/plain');
-  res.write('This is the list of our students\n');
-  fs.readFile(argv[2], 'utf8', (err, data) => {
-    if (err) {
-      throw Error('Cannot load the database');
-    }
-    const result = [];
-    data.split('\n').forEach((data) => {
-      result.push(data.split(','));
-    });
-    result.shift();
-    const newis = [];
-    result.forEach((data) => newis.push([data[0], data[3]]));
-    const fields = new Set();
-    newis.forEach((item) => fields.add(item[1]));
-    const final = {};
-    fields.forEach((data) => { (final[data] = 0); });
-    newis.forEach((data) => { (final[data[1]] += 1); });
-    res.write(`Number of students: ${result.filter((check) => check.length > 3).length}\n`);
-    Object.keys(final).forEach((data) => res.write(`Number of students in ${data}: ${final[data]}. List: ${newis.filter((n) => n[1] === data).map((n) => n[0]).join(', ')}\n`));
-    res.end();
-  });
+app.get('/students', async (_, res) => {
+  try {
+    const report = await countStudents(DB_FILE);
+    res.setHeader('Content-Type', 'text/plain');
+    res.status(200).send(report);
+  } catch (error) {
+    res.setHeader('Content-Type', 'text/plain');
+    res.status(500).send('Cannot load the database');
+  }
 });
 
-app.listen(1245);
+app.listen(PORT, () => {
+  console.log(`Server listening on PORT ${PORT}`);
+});
 
 module.exports = app;
